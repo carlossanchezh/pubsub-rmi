@@ -182,5 +182,10 @@ Un subscriptor termina su sesión con `exit()`. El broker lo elimina de todas su
 │           └── SubscriberCallback.java  # Interfaz de callbacks
 │   
 ├── .gitignore                           # Archivos y carpetas ignorados por Git
+├── INSTRUCTIONS.md                      # Instrucciones de instalación y ejecución del proyecto
 └── README.md                            # Descripción del proyecto 
 ```
+
+## Instalación y ejecución
+
+Ver [INSTRUCTIONS.md](INSTRUCTIONS.md)
