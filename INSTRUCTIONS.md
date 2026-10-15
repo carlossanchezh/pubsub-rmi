@@ -1,10 +1,18 @@
 # Instrucciones de instalación y ejecución
 
-## Requisitos
+Este proyecto puede ejecutarse de dos formas: **en local** (con los requisitos necesarios instalados en tu máquina) o **con Docker** (sin necesidad de instalar nada más que Docker Desktop).
+
+- Para la **ejecución local**, sigue las secciones [Requisitos local](#requisitos-local), [Instalación para ejecución local](#instalación-para-ejecución-local) y [Ejecución local](#ejecución-local).
+
+- Para la **ejecución con Docker**, sigue las secciones [Requisitos con Docker](#requisitos-con-docker), [Instalación para ejecución con Docker](#instalación-para-ejecución-con-docker) y [Ejecución con Docker](#ejecución-con-docker).
+
+- Para conocer las **operaciones del sistema**, consulta la sección [Uso del sistema](#uso-del-sistema) y los [Casos de uso](#casos-de-uso).
+
+## Requisitos local
 
 - **Java** 11 o superior
 
-## Instalación
+## Instalación para ejecución local
 
 ### 1. Clonar el repositorio
 
@@ -14,7 +22,7 @@ git clone https://github.com/carlossanchezh/pubsub-rmi.git
 
 > Si no usas Git, descarga el `.zip` del proyecto y descomprímelo en una carpeta local.
 
-### 2. Compilar el módulo `common` 
+### 2. Compilar el módulo `common`
 
 **Linux / macOS**
 
@@ -25,7 +33,7 @@ cd bin
 jar cf ../common.jar pubsub/*.class
 ```
 
-**Windows** 
+**Windows**
 
 ```powershell
 cd common
@@ -82,7 +90,7 @@ cd client_node
 javac -cp ".;common.jar" -d bin src\pubsubcln\*.java src\pubsubapps\*.java
 ```
 
-## Ejecución
+## Ejecución local
 
 ### 1. Arrancar el broker
 
@@ -147,12 +155,117 @@ java -cp bin:common.jar pubsubapps.TestTopicCreate localhost 54321 tema1 tema2
 java -cp bin:common.jar pubsubapps.TestTopicNotify localhost 54321
 java -cp bin:common.jar pubsubapps.TestGlob localhost 54321 "/nivel1a/*/tema[12]" /nivel1a/nivel2a/tema1
 ```
-> En Windows, sustituye `:` por `;` en el classpath (`bin;common.jar` en lugar de `bin:common.jar`). 
+> En Windows, sustituye `:` por `;` en el classpath (`bin;common.jar` en lugar de `bin:common.jar`).
 
 ### 3. Detener el sistema
 
 - En cada cliente: `Ctrl+D` para salir.
 - En el broker: `Ctrl+C` para detenerlo.
+
+## Requisitos con Docker
+
+- **Docker Desktop**
+
+## Instalación para ejecución con Docker
+
+Las imágenes del broker ([carlossanchezh/pubsub-rmi-broker](https://hub.docker.com/r/carlossanchezh/pubsub-rmi-broker)) y del cliente ([carlossanchezh/pubsub-rmi-client](https://hub.docker.com/r/carlossanchezh/pubsub-rmi-client)) están publicadas en Docker Hub, por lo que **no es necesario clonar el repositorio** ni construir nada. Basta con descargar las imágenes:
+
+Imagen del broker:
+
+```bash
+docker pull carlossanchezh/pubsub-rmi-broker:latest
+```
+
+Imagen del cliente:
+
+```bash
+docker pull carlossanchezh/pubsub-rmi-client:latest
+```
+
+Si prefieres construir las imágenes en lugar de descargarlas de Docker Hub, deberás clonar el repositorio:
+
+```bash
+git clone https://github.com/carlossanchezh/pubsub-rmi
+```
+
+> Si no usas Git, descarga el `.zip` del proyecto y descomprímelo en una carpeta local.
+
+Una vez clonado el repositorio tendrás que construir las imágenes a partir de los `Dockerfile` del proyecto:
+
+Imagen del broker:
+
+```bash
+docker build -t carlossanchezh/pubsub-rmi-broker:latest -f broker_node/Dockerfile .
+```
+
+Imagen del cliente:
+
+```bash
+docker build -t carlossanchezh/pubsub-rmi-client:latest -f client_node/Dockerfile .
+```
+
+> En Windows usar `\` en lugar de `/` (broker_node\Dockerfile) y (client_node\Dockerfile)
+
+## Ejecución con Docker
+
+Lo primero será crear la red
+
+```bash
+docker network create pubsub-net
+```
+
+Esta red permite que los contenedores se vean entre sí por nombre (broker, cliente1, cliente2, ...).
+
+> `pubsub-net` es un ejemplo de nombre para la red se puede usar cualquiera
+
+### 2. Levantar el primer contenedor Broker
+
+A partir de la imagen del broker descargada/construida previamente en la instalación:
+
+```bash
+docker run -it --rm --name broker --hostname broker --network pubsub-net -p 54321:54321 carlossanchezh/pubsub-rmi-broker:latest
+```
+> --hostname broker fija el nombre que el broker publica en RMI para que los clientes lo resuelvan por DNS en Docker.
+
+La salida esperada será:
+
+```
+Servicio registrado como 'PubSub'
+```
+
+> El broker se queda bloqueado escuchando. No cierres esta terminal.
+ 
+### 3. Levantar un segundo contenedor Cliente
+
+En otra terminal distinta a partir de la imagen del cliente descargada/construida previamente en la instalación:
+
+```bash
+docker run -it --rm --network pubsub-net --name client1 --hostname client1 carlossanchezh/pubsub-rmi-client:latest
+```
+
+> `client1` es un ejemplo de nombre para el contenedor se puede usar cualquiera
+>
+> `client1` es un ejemplo de hostname para el contenedor se puede usar cualquiera
+
+> --hostname client1 fija el nombre que RMI publica para que el broker pueda notificar al cliente por DNS en Docker. 
+
+La salida esperada será:
+
+```
+Introduzca operacion (Ctrl-D para terminar)
+	getVersion|createTopic|topicList|publish|consumeEvent|initSubscriber|
+	getUUID|subscriberList|subscribe|subscriberListByTopic|getEvent|
+	subscribeGlob|topicListBySubscriber|unsubscribe|exit|deleteTopic
+```
+
+> Para probar el sistema con varios clientes, repite el paso anterior. Recuerda lanzar cada cliente en su propia terminal.
+
+### 4. Detener los contenedores
+
+- En cada cliente: `Ctrl+D` para salir y detener el contenedor.
+- En el broker: `Ctrl+C` para detenerlo y detener el contenedor.
+
+> Al haber desplegado los contenedores con --rm al detenerese al contenedor se eliminará automaticamente
 
 ## Uso del sistema
 
