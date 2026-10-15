@@ -1,0 +1,8 @@
+**/bin/
+**/*.class
+**/common.jar
+**/.idea/
+**/*.iml
+.git/
+.vscode/
+*.md
