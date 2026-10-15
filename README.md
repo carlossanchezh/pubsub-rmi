@@ -146,32 +146,42 @@ Un subscriptor termina su sesión con `exit()`. El broker lo elimina de todas su
 
 - Lenguaje: **Java**
 - Comunicación entre broker y clientes: **Java RMI**
+- Despliegue: **Docker**
+
+## Imagen del sistema
+
+La imagen del broker ([carlossanchezh/pubsub-rmi-broker](https://hub.docker.com/r/carlossanchezh/pubsub-rmi-broker)) y del cliente ([carlossanchezh/pubsub-rmi-client](https://hub.docker.com/r/carlossanchezh/pubsub-rmi-client)) están publicadas en Docker Hub.
+
+Consulta la sección de [Instalación y ejecución](#instalación-y-ejecución) para más detalles sobre el despliegue con Docker.
 
 ## Estructura del proyecto
 
 ```plaintext
 .
 ├── broker_node/                         # Implementación del broker
-│   └── src/                     
-│       └── broker/                      # Paquete del broker
-│           ├── PubSubImpl.java          # Implementación del servicio general
-│           ├── SubscriberImpl.java      # Implementación de los subscriptores
-│           ├── Server.java              # Registro del servicio en RMI
-│           └── Topic.java               # Gestión de un tema
+│   ├── src/                     
+│   │   └── broker/                      # Paquete del broker
+│   │       ├── PubSubImpl.java          # Implementación del servicio general
+│   │       ├── SubscriberImpl.java      # Implementación de los subscriptores
+│   │       ├── Server.java              # Registro del servicio en RMI
+│   │       └── Topic.java               # Gestión de un tema
+│   └── Dockerfile                       # Imagen Docker del broker
 │ 
 ├── client_node/                         # Clientes y utilidades
-│   └── src/
-│       ├── pubsubapps/                  # Programas de prueba
-│       │   ├── Test.java                # Cliente interactivo completo
-│       │   ├── TestConsumer.java        # Consumidor de ejemplo (modo cola)
-│       │   ├── TestGlob.java            # Prueba de subscripción con glob
-│       │   ├── TestPublisher.java       # Editor de ejemplo
-│       │   ├── TestSubscriber.java      # Subscriptor de ejemplo
-│       │   ├── TestTopicCreate.java     # Creador y destructor de temas
-│       │   └── TestTopicNotify.java     # Receptor de notificaciones de temas
-│       │
-│       └── pubsubcln/                   # Utilidades del cliente
-│           └── Client.java              # Localización del servicio en RMI
+│   ├── src/
+│   │   ├── pubsubapps/                  # Programas de prueba
+│   │   │   ├── Test.java                # Cliente interactivo completo
+│   │   │   ├── TestConsumer.java        # Consumidor de ejemplo (modo cola)
+│   │   │   ├── TestGlob.java            # Prueba de subscripción con glob
+│   │   │   ├── TestPublisher.java       # Editor de ejemplo
+│   │   │   ├── TestSubscriber.java      # Subscriptor de ejemplo
+│   │   │   ├── TestTopicCreate.java     # Creador y destructor de temas
+│   │   │   └── TestTopicNotify.java     # Receptor de notificaciones de temas
+│   │   │
+│   │   └── pubsubcln/                   # Utilidades del cliente
+│   │       └── Client.java              # Localización del servicio en RMI
+│   │
+│   └── Dockerfile                       # Imagen Docker del cliente
 │
 ├── common/                              # Clases comunes a broker y cliente
 │   └── src/
@@ -180,7 +190,8 @@ Un subscriptor termina su sesión con `exit()`. El broker lo elimina de todas su
 │           ├── PubSub.java              # Interfaz general del servicio
 │           ├── Subscriber.java          # Interfaz de los subscriptores
 │           └── SubscriberCallback.java  # Interfaz de callbacks
-│   
+│  
+├── .dockerignore                        # Archivos y carpetas excluidos del contexto de Docker 
 ├── .gitignore                           # Archivos y carpetas ignorados por Git
 ├── INSTRUCTIONS.md                      # Instrucciones de instalación y ejecución del proyecto
 └── README.md                            # Descripción del proyecto 
@@ -188,4 +199,6 @@ Un subscriptor termina su sesión con `exit()`. El broker lo elimina de todas su
 
 ## Instalación y ejecución
 
-Ver [INSTRUCTIONS.md](INSTRUCTIONS.md)
+El proyecto puede ejecutarse de dos formas, de manera **Local** o utilizando **Docker**.
+
+Consulta [INSTRUCTIONS.md](INSTRUCTIONS.md) para las instrucciones detalladas de instalación, ejecución y uso de las operaciones del sistema.
